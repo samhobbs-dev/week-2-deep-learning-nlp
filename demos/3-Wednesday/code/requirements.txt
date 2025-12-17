@@ -1,0 +1,8 @@
+# Week 2 - Wednesday Demos: NLP Basics, Tokenization, Embeddings, Word2Vec
+# Requirements for NLP preprocessing and embeddings
+
+tensorflow>=2.10.0
+numpy>=1.21.0
+matplotlib>=3.4.0
+scikit-learn>=1.0.0
+
