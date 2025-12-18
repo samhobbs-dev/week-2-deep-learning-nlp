@@ -40,13 +40,15 @@ class TextCleaner:
         Remove URLs (http://, https://, www.)
         Use: re.sub(pattern, '', text)
         """
-        # YOUR CODE HERE
+        re.sub('http://', '', text)
+        re.sub('https://', '', text)
+        re.sub('www.', '', text)
         return text
     
     @staticmethod
     def remove_emails(text):
         """Remove email addresses"""
-        # YOUR CODE HERE
+        re.sub(r'\b[\w.-]+@[\w.-]+\.\w+\b', '', text)
         return text
     
     @staticmethod
@@ -57,7 +59,10 @@ class TextCleaner:
         
         HINT for separate: re.sub(r'([^\w\s])', r' \1 ', text)
         """
-        # YOUR CODE HERE
+        if mode == 'remove':
+            re.sub(r'([^\w\s])', '', text)
+        elif mode == 'separate':
+            re.sub(r'([^\w\s])', r' \1 ', text)
         return text
     
     @staticmethod
@@ -66,13 +71,17 @@ class TextCleaner:
         Multiple spaces -> single space, strip ends.
         HINT: ' '.join(text.split())
         """
-        # YOUR CODE HERE
+        text = ' '.join(text.split())
         return text
     
     @classmethod
     def clean(cls, text, remove_punct=True):
         """Apply all cleaning steps in order"""
-        # YOUR CODE: Chain all methods above
+        text = cls.lowercase(text)
+        text = cls.remove_urls(text)
+        text = cls.remove_emails(text)
+        text = cls.handle_punctuation(text)
+        text = cls.normalize_whitespace(text)
         return text
 
 
