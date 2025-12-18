@@ -166,12 +166,12 @@ model.compile(
     metrics=['accuracy']
 )
 
-print(f"\nModel architecture:")
-model.summary()
-
 # Train
 print("\nTraining RNN...")
 history = model.fit(X, y, epochs=50, verbose=0)
+
+print(f"\nModel architecture:")
+model.summary()
 
 # Predict
 predictions = model.predict(X, verbose=0)
@@ -231,6 +231,12 @@ stacked_model = keras.Sequential([
     layers.Dense(1, activation='sigmoid')
 ], name='stacked_rnn')
 
+stacked_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+# Train
+print("\nTraining RNN...")
+history = stacked_model.fit(X, y, epochs=10, verbose=0)
+
 print("\nStacked RNN architecture:")
 stacked_model.summary()
 
@@ -257,6 +263,13 @@ bidirectional_model = keras.Sequential([
     layers.Bidirectional(layers.SimpleRNN(16)),
     layers.Dense(1, activation='sigmoid')
 ], name='bidirectional_rnn')
+
+bidirectional_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+
+# Train
+print("\nTraining RNN...")
+history = bidirectional_model.fit(X, y, epochs=10, verbose=0)
 
 print("\nBidirectional RNN architecture:")
 bidirectional_model.summary()
