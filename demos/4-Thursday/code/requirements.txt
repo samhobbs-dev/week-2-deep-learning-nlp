@@ -1,0 +1,8 @@
+# Week 2 - Thursday Demos: RNNs, LSTMs, Sequence Processing
+# Requirements for recurrent neural networks
+
+tensorflow>=2.10.0
+numpy>=1.21.0
+matplotlib>=3.4.0
+scikit-learn>=1.0.0    # For TSNE in embedding visualization
+gdown>=4.7.1           # For downloading GloVe embeddings

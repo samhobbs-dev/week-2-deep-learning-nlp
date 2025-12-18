@@ -19,6 +19,8 @@ References:
 import re
 import numpy as np
 from collections import Counter
+import nltk
+nltk.download('punkt_tab', quiet=True)
 
 # ============================================================================
 # PART 1: Why Tokenization?
@@ -85,8 +87,6 @@ print("PART 4: NLTK Word Tokenization")
 print("=" * 70)
 
 try:
-    import nltk
-    nltk.download('punkt', quiet=True)
     
     tokens_nltk = nltk.word_tokenize(sample_text)
     print(f"\nNLTK tokenization: {tokens_nltk}")
