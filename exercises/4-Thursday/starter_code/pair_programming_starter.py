@@ -51,10 +51,26 @@ def load_imdb_data(vocab_size=10000, max_length=200):
     print("Driver: Partner A | Navigator: Partner B")
     print("-" * 50)
     
-    # YOUR CODE HERE
-    # Return: (x_train, y_train), (x_val, y_val), (x_test, y_test)
-    pass
+    (x_train, y_train), (x_test, y_test) = keras.datasets.imdb.load_data(num_words=vocab_size)
+ 
+    x_train = pad_sequences(x_train, maxlen=max_length, padding='pre')
+    x_test = pad_sequences(x_test, maxlen=max_length, padding='pre')
 
+    x_val = x_train[-5000:]
+    y_val = y_train[-5000:]
+
+    x_train = x_train[:-5000]
+    y_train = y_train[:-5000]
+
+    # x_train_sub = x_train[:5000]
+    # y_train_sub = y_train[:5000]
+    # x_test_sub = x_test[:1000]
+    # y_test_sub = y_test[:1000]
+    # x_val = x_train[5000:7000]
+    # y_val = y_train[5000:7000]
+
+    # Return: (x_train, y_train), (x_val, y_val), (x_test, y_test)
+    return (x_train, y_train), (x_val, y_val), (x_test, y_test)
 
 # ============================================================================
 # CHECKPOINT 2: SimpleRNN Model (25 min)
@@ -81,9 +97,14 @@ def build_simple_rnn(vocab_size=10000, embedding_dim=64, rnn_units=32):
     print("Driver: Partner B | Navigator: Partner A")
     print("-" * 50)
     
-    # YOUR CODE HERE
-    pass
+    rnn_model = keras.Sequential([
+        layers.Embedding(vocab_size, embedding_dim, mask_zero=True),
+        layers.SimpleRNN(rnn_units),
+        layers.Dense(1, activation='sigmoid')
+    ], name='SimpleRNN')
+    rnn_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
+    return rnn_model
 
 # ============================================================================
 # CHECKPOINT 3: LSTM Model (25 min)
@@ -108,8 +129,12 @@ def build_lstm(vocab_size=10000, embedding_dim=64, lstm_units=32):
     print("Driver: Partner A | Navigator: Partner B")
     print("-" * 50)
     
-    # YOUR CODE HERE
-    pass
+    return keras.Sequential([
+        layers.Embedding(vocab_size, embedding_dim, mask_zero=True),
+        layers.LSTM(lstm_units),
+        layers.Dense(1, activation='sigmoid')
+    ], name='LSTM')
+    
 
 
 # ============================================================================
@@ -140,12 +165,49 @@ def train_and_compare(data):
     results = {}
     
     # YOUR CODE:
+    log_dir_lstm = "logs/rnn_comparison/lstm_" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    os.makedirs(log_dir_lstm, exist_ok=True)
+    tb_lstm = keras.callbacks.TensorBoard(log_dir=log_dir_lstm, histogram_freq=1)
+
     # 1. Build SimpleRNN model
+    rnn_model = build_simple_rnn()
     # 2. Train with timing
+    start_time = time.time()
+    history_rnn = rnn_model.fit(
+        x_train, y_train,
+        epochs=5,
+        batch_size=128,
+        validation_data=(x_val, y_val),
+        validation_split=0.2,
+        # callbacks=[tb_rnn],
+        verbose=1
+    )
+    rnn_time = time.time() - start_time
+    # results['SimpleRNN'] = {
+    #     'val_accuracy': history_rnn.history['val_accuracy']
+    # }
+    rnn_test_loss, rnn_test_acc = rnn_model.evaluate(x_test, y_test, verbose=0)
     # 3. Build LSTM model
+    lstm_model = build_lstm()
     # 4. Train with timing
+    start_time = time.time()
+    history_lstm = lstm_model.fit(
+        x_train, y_train,
+        epochs=5,
+        batch_size=128,
+        validation_data=(x_val, y_val),
+        validation_split=0.2,
+        # callbacks=[tb_lstm],
+        verbose=1
+    )
+    lstm_time = time.time() - start_time
+
+    lstm_test_loss, lstm_test_acc = lstm_model.evaluate(x_test, y_test, verbose=0)
     # 5. Compare and store results
-    
+    print(f"SimpleRNN: {rnn_test_acc:.4f} accuracy, {rnn_time:.1f}s training")
+    print(f"LSTM:      {lstm_test_acc:.4f} accuracy, {lstm_time:.1f}s training")
+    print(f"\nLSTM wins by {(lstm_test_acc - rnn_test_acc)*100:.1f}% accuracy!")
+
     return results
 
 
