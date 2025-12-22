@@ -147,7 +147,7 @@ y_train_sub = y_train[:20000]
 print("\nTraining WITHOUT batch normalization...")
 model_no_bn = create_model_without_bn()
 model_no_bn.compile(
-    optimizer=keras.optimizers.Adam(learning_rate=0.001),
+    optimizer=keras.optimizers.SGD(learning_rate=0.001),
     loss='sparse_categorical_crossentropy',
     metrics=['accuracy']
 )
@@ -174,7 +174,7 @@ print(f"Final val accuracy: {history_no_bn.history['val_accuracy'][-1]:.4f}")
 print("\nTraining WITH batch normalization...")
 model_with_bn = create_model_with_bn()
 model_with_bn.compile(
-    optimizer=keras.optimizers.Adam(learning_rate=0.001),
+    optimizer=keras.optimizers.SGD(learning_rate=0.001),
     loss='sparse_categorical_crossentropy',
     metrics=['accuracy']
 )

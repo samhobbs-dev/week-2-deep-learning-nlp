@@ -103,12 +103,12 @@ print("Dense: 64 neurons -> 10 output (Softmax)")
 
 model = keras.Sequential([
     # ---- Conv Block 1 ----
-    layers.Conv2D(32, (3, 3), padding='same', input_shape=(28, 28, 1), name='conv1'),
+    layers.Conv2D(64, (3, 3), padding='same', input_shape=(28, 28, 1), name='conv1'),
     layers.Activation('relu', name='relu1'),
     layers.MaxPooling2D((2, 2), name='pool1'),
     
     # ---- Conv Block 2 ----
-    layers.Conv2D(64, (3, 3), padding='same', name='conv2'),
+    layers.Conv2D(128, (3, 3), padding='same', name='conv2'),
     layers.Activation('relu', name='relu2'),
     layers.MaxPooling2D((2, 2), name='pool2'),
     
@@ -188,7 +188,7 @@ print(f"  Validation split: 20%")
 # Train
 history = model.fit(
     x_train, y_train_cat,
-    epochs=10,
+    epochs=20,
     batch_size=128,
     validation_split=0.2,
     callbacks=[tensorboard_callback, early_stopping]

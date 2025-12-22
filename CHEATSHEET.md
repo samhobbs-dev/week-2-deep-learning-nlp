@@ -14,7 +14,7 @@ This week covered _____. By the end, trainees can:
 ## Concept Quick Reference
 
 | Concept | Definition | Key Use Case |
-|---------|------------|--------------||
+|---------|------------|--------------|
 | TensorBoard | _____ | _____ |
 | Autoencoder | _____ | _____ |
 | Reconstruction Loss | _____ | _____ |
@@ -38,6 +38,17 @@ This week covered _____. By the end, trainees can:
 | L1 Regularization | _____ | _____ |
 | L2 Regularization | _____ | _____ |
 | Data Augmentation | _____ | _____ |
+| Attention Mechanism | _____ | _____ |
+| Self-Attention | _____ | _____ |
+| Query (Q) | _____ | _____ |
+| Key (K) | _____ | _____ |
+| Value (V) | _____ | _____ |
+| Multi-Head Attention | _____ | _____ |
+| Transformer | _____ | _____ |
+| Positional Encoding | _____ | _____ |
+| Layer Normalization | _____ | _____ |
+| Residual Connection | _____ | _____ |
+| Feed-Forward Network (FFN) | _____ | _____ |
 
 ---
 
@@ -76,6 +87,23 @@ This week covered _____. By the end, trainees can:
 | L2 Regularization | _____ | _____ | _____ |
 | Early Stopping | _____ | _____ | _____ |
 
+### Attention vs RNN
+
+| Aspect | RNN-based | Attention-based | Best For |
+|--------|-----------|-----------------|----------|
+| Long-range dependencies | _____ | _____ | _____ |
+| Training speed | _____ | _____ | _____ |
+| Interpretability | _____ | _____ | _____ |
+| Memory efficiency | _____ | _____ | _____ |
+
+### Transformer Architectures
+
+| Architecture | Pros | Cons | Best For |
+|--------------|------|------|----------|
+| Encoder-only (BERT) | _____ | _____ | _____ |
+| Decoder-only (GPT) | _____ | _____ | _____ |
+| Encoder-Decoder (T5) | _____ | _____ | _____ |
+
 ---
 
 ## When to Use What
@@ -103,6 +131,15 @@ This week covered _____. By the end, trainees can:
 | Train acc high, val acc low | _____ | _____ |
 | Large weight values | _____ | _____ |
 | Validation loss increasing | _____ | _____ |
+
+### Choosing Attention vs Transformer
+
+| If you need... | And your constraint is... | Then use... | Because... |
+|----------------|---------------------------|-------------|------------|
+| Sequence-to-sequence with context | Moderate compute | _____ | _____ |
+| Best performance on NLP | Sufficient GPU memory | _____ | _____ |
+| Very long sequences (>512) | Memory limited | _____ | _____ |
+| Real-time inference | Latency critical | _____ | _____ |
 
 ---
 
@@ -277,6 +314,82 @@ model.add(layers.Dropout(_____))
 model.add(layers.Dense(64, kernel_regularizer=tf.keras.regularizers._____(_____)))
 ```
 
+### Attention Mechanism (Friday)
+
+```python
+# Scaled Dot-Product Attention formula
+# Attention(Q, K, V) = softmax(Q · K^T / sqrt(_____)) · V
+
+# Self-Attention: Q, K, V all from same input
+query = layers.Dense(_____)(inputs)
+key = layers.Dense(_____)(inputs)
+value = layers.Dense(_____)(inputs)
+
+# Compute attention scores
+scores = tf.matmul(query, key, transpose_b=_____)
+scores = scores / tf.math.sqrt(tf.cast(d_model, tf.float32))
+attention_weights = tf.nn._____(scores, axis=-1)
+output = tf.matmul(attention_weights, _____)
+```
+
+### Multi-Head Attention (Friday)
+
+```python
+# Using Keras built-in MultiHeadAttention
+attention = layers.MultiHeadAttention(
+    num_heads=_____,           # Number of parallel attention heads
+    key_dim=_____,             # Dimension per head (d_model / num_heads)
+    dropout=_____              # Dropout rate for attention weights
+)
+
+# Self-attention: query and value are the same
+output = attention(_____, _____)  # (query, value)
+```
+
+### Transformer Encoder Block (Friday)
+
+```python
+# Encoder block structure:
+# Input → MultiHeadAttention → Add & Norm → FFN → Add & Norm → Output
+
+class TransformerEncoderBlock(keras.layers.Layer):
+    def __init__(self, d_model, num_heads, ff_dim, dropout_rate=0.1):
+        super().__init__()
+        self.attention = layers.MultiHeadAttention(
+            num_heads=num_heads,
+            key_dim=d_model // num_heads
+        )
+        self.ffn = keras.Sequential([
+            layers.Dense(_____, activation='_____'),  # Expand (typically 4x d_model)
+            layers.Dense(_____),                       # Project back to d_model
+        ])
+        self.layernorm1 = layers._____()
+        self.layernorm2 = layers._____()
+    
+    def call(self, x):
+        attn_output = self.attention(x, x)
+        x = self.layernorm1(x + _____)  # Residual connection
+        ffn_output = self.ffn(x)
+        return self.layernorm2(x + _____)  # Residual connection
+```
+
+### Positional Encoding (Friday)
+
+```python
+# Why needed: Transformers have no built-in _____ information
+# Solution: Add position encoding to embeddings
+
+# Learnable positional embeddings
+max_seq_len = 100
+d_model = 512
+
+# Token embedding + position embedding
+token_embed = layers.Embedding(vocab_size, d_model)(inputs)
+positions = tf.range(max_seq_len)
+pos_embed = layers.Embedding(_____, _____)(positions)
+final_embed = token_embed + _____
+```
+
 ---
 
 ## Common Gotchas
@@ -293,6 +406,12 @@ model.add(layers.Dense(64, kernel_regularizer=tf.keras.regularizers._____(_____)
 | Overfitting | Adding more layers when already overfitting | _____ |
 | Early Stopping | Setting patience too low | _____ |
 | Saving Models | Only saving weights, not architecture | _____ |
+| Attention | Not scaling dot product by √d_k | _____ |
+| Multi-Head | Using wrong key_dim (should be d_model/num_heads) | _____ |
+| Positional Encoding | Forgetting to add position info to embeddings | _____ |
+| Transformer | Not using residual connections | _____ |
+| Layer Norm | Using Batch Norm instead of Layer Norm in Transformers | _____ |
+| FFN | Not expanding dimension in feed-forward (should be 4x) | _____ |
 
 ---
 

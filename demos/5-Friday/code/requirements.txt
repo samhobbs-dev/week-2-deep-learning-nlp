@@ -1,0 +1,7 @@
+# Week 2 - Friday Demos: Model Persistence, Checkpoints, Regularization
+# Requirements for model saving and training best practices
+
+tensorflow>=2.10.0
+numpy>=1.21.0
+matplotlib>=3.4.0
+

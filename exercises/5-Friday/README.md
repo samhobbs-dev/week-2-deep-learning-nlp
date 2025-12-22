@@ -1,44 +1,103 @@
-# Friday Exercises: Model Management & Production
-
-## Overview
-
-These exercises reinforce model persistence, checkpointing, early stopping, and regularization techniques covered in today's demos. You'll build production-ready training pipelines.
+# Friday Exercises: Transformers & Regularization
 
 ## Exercise Schedule
 
 | Exercise | Type | Duration | Prerequisites |
 |----------|------|----------|---------------|
-| 01: Model Persistence Lab | Implementation | 45 min | Demo 01, Reading 01 |
-| 02: Checkpoint Strategy | Implementation | 45 min | Demos 02-03, Readings 02-03 |
-| 03: Combat Overfitting | Implementation | 60 min | Demo 04, Reading 04 |
-| 04: Production Pipeline | Implementation | 60 min | All Friday demos and readings |
+| 01: Attention Basics | Implementation | 30 min | Demo 01 |
+| 02: Build a Transformer | Implementation | 45 min | Demo 02 |
+| 03: Add Regularization | Implementation | 30 min | Demo 03 |
+| 04: Complete Model | Implementation | 45 min | Demo 04 |
 
-## Prerequisites
+**Total Time: ~2.5 hours**
 
-- Completed readings: `01-04` in `readings/5-Friday/`
-- Watched demos: `demo_01` through `demo_04`
-- Python environment with TensorFlow 2.x
+---
 
-## Learning Objectives
+## Exercise 01: Attention Basics (30 min)
 
-By completing these exercises, you will be able to:
+### Goal
+Use Keras MultiHeadAttention to process a sequence.
 
-1. Save and load models in multiple formats
-2. Implement robust checkpointing strategies
-3. Use early stopping effectively
-4. Apply regularization techniques to prevent overfitting
+### Tasks
 
-## Getting Started
+1. Open `starter_code/exercise_01_starter.py`
+2. Complete the `TODO` sections:
+   - Create a MultiHeadAttention layer with 4 heads
+   - Apply it to the input sequence
+   - Print the output shape
 
-```bash
-cd exercises/5-Friday
-pip install -r requirements.txt
-```
+### Definition of Done
+- [ ] Attention layer created
+- [ ] Output shape is same as input shape
+- [ ] Script runs without errors
 
-Start with Exercise 01 and proceed in order.
+---
 
-## Guidance Philosophy
+## Exercise 02: Build a Transformer (45 min)
 
-- **Exercise 01**: Guided with clear steps and verification
-- **Exercise 02**: Moderate guidance with scenarios
-- **Exercise 03**: Minimal guidance - design your own experiments
+### Goal
+Build a simple Transformer for text classification.
+
+### Tasks
+
+1. Open `starter_code/exercise_02_starter.py`
+2. Complete the model:
+   - Add embedding layer
+   - Add position embeddings
+   - Add MultiHeadAttention
+   - Add classification head
+
+### Definition of Done
+- [ ] Model compiles successfully
+- [ ] Model can predict on sample input
+- [ ] Test accuracy > 50% (better than random)
+
+---
+
+## Exercise 03: Add Regularization (30 min)
+
+### Goal
+Add dropout and weight decay to prevent overfitting.
+
+### Tasks
+
+1. Open `starter_code/exercise_03_starter.py`
+2. Add regularization:
+   - Dropout(0.3) after Dense layers
+   - L2 regularization to Dense layers
+   - Early stopping callback
+
+### Definition of Done
+- [ ] Dropout layers added
+- [ ] L2 regularizer applied
+- [ ] Early stopping configured
+- [ ] Gap between train/val accuracy reduced
+
+---
+
+## Exercise 04: Complete Model (45 min)
+
+### Goal
+Build a production-ready Transformer with all best practices.
+
+### Tasks
+
+1. Open `starter_code/exercise_04_starter.py`
+2. Complete the production model with:
+   - Proper embedding + position encoding
+   - Attention with dropout
+   - FFN with regularization
+   - Model checkpointing
+
+### Definition of Done
+- [ ] Model trains successfully
+- [ ] Best model saved to checkpoint
+- [ ] Early stopping triggers
+- [ ] Final test accuracy > 60%
+
+---
+
+## Solutions
+
+Reference solutions are in `solutions/` folder.
+Try to complete exercises before looking!

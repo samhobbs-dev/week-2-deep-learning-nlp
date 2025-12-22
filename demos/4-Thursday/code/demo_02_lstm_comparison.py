@@ -113,12 +113,14 @@ lstm_model = build_lstm()
 rnn_model.build(input_shape=(None, max_length))
 lstm_model.build(input_shape=(None, max_length))
 
-print("\nSimpleRNN Model:")
-print(f"  Parameters: {rnn_model.count_params():,}")
+# Schedule LR
+lr_schedule = keras.optimizers.schedules.ExponentialDecay(
+    initial_learning_rate=0.1,
+    decay_steps=50, # total_samples / batch_size 
+    decay_rate=0.9,
+    staircase=True
+)
 
-print("\nLSTM Model:")
-print(f"  Parameters: {lstm_model.count_params():,}")
-print(f"  (LSTM has ~4x more parameters due to 4 gates)")
 
 # ============================================================================
 # PART 3: Training Comparison
@@ -134,23 +136,33 @@ y_train_sub = y_train[:5000]
 x_test_sub = x_test[:1000]
 y_test_sub = y_test[:1000]
 
+sgd_optimizer = keras.optimizers.SGD(learning_rate=lr_schedule, momentum=0.9, clipnorm=1.0)
+adam_optimizer = keras.optimizers.Adam(learning_rate=0.001, clipnorm=1.0)
+
 # Train SimpleRNN
 print("\nTraining SimpleRNN...")
 rnn_model = build_simple_rnn()
-rnn_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+rnn_model.compile(optimizer=adam_optimizer, loss='binary_crossentropy', metrics=['accuracy'])
 
 # TensorBoard for SimpleRNN
 log_dir_rnn = "logs/rnn_comparison/simple_rnn_" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 os.makedirs(log_dir_rnn, exist_ok=True)
 tb_rnn = keras.callbacks.TensorBoard(log_dir=log_dir_rnn, histogram_freq=1)
 
+early_stopping = keras.callbacks.EarlyStopping(
+    monitor='val_loss',
+    patience=15,
+    mode='min',
+    verbose=1
+)
+
 start_time = time.time()
 history_rnn = rnn_model.fit(
     x_train_sub, y_train_sub,
-    epochs=5,
+    epochs=100,
     batch_size=128,
     validation_split=0.2,
-    callbacks=[tb_rnn],
+    callbacks=[tb_rnn, early_stopping],
     verbose=1
 )
 rnn_time = time.time() - start_time
@@ -158,10 +170,13 @@ rnn_time = time.time() - start_time
 rnn_test_loss, rnn_test_acc = rnn_model.evaluate(x_test_sub, y_test_sub, verbose=0)
 print(f"SimpleRNN Test Accuracy: {rnn_test_acc:.4f} (Time: {rnn_time:.1f}s)")
 
+sgd_lstm_optimizer = keras.optimizers.SGD(learning_rate=lr_schedule, momentum=0.9, clipnorm=1.0)
+adam_lstm_optimizer = keras.optimizers.Adam(learning_rate=0.001, clipnorm=1.0)
+
 # Train LSTM
 print("\nTraining LSTM...")
 lstm_model = build_lstm()
-lstm_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+lstm_model.compile(optimizer=adam_lstm_optimizer, loss='binary_crossentropy', metrics=['accuracy'])
 
 # TensorBoard for LSTM
 log_dir_lstm = "logs/rnn_comparison/lstm_" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -171,16 +186,24 @@ tb_lstm = keras.callbacks.TensorBoard(log_dir=log_dir_lstm, histogram_freq=1)
 start_time = time.time()
 history_lstm = lstm_model.fit(
     x_train_sub, y_train_sub,
-    epochs=5,
+    epochs=100,
     batch_size=128,
     validation_split=0.2,
-    callbacks=[tb_lstm],
+    callbacks=[tb_lstm, early_stopping],
     verbose=1
 )
 lstm_time = time.time() - start_time
 
 lstm_test_loss, lstm_test_acc = lstm_model.evaluate(x_test_sub, y_test_sub, verbose=0)
 print(f"LSTM Test Accuracy: {lstm_test_acc:.4f} (Time: {lstm_time:.1f}s)")
+
+
+print("\nSimpleRNN Model:")
+print(f"  Parameters: {rnn_model.layers[1].count_params():,}")
+
+print("\nLSTM Model:")
+print(f"  Parameters: {lstm_model.layers[1].count_params():,}")
+print(f"  (LSTM has ~4x more parameters in recurrent due to 4 gates)")
 
 # ============================================================================
 # PART 4: View Training Comparison (TensorBoard)
@@ -225,7 +248,7 @@ stacked_lstm = keras.Sequential([
 
 stacked_lstm.build(input_shape=(None, max_length))
 print("\nStacked LSTM:")
-print(f"  Parameters: {stacked_lstm.count_params():,}")
+print(f"  Parameters: {stacked_lstm.layers[1].count_params():,}")
 
 # Bidirectional LSTM
 bidirectional_lstm = keras.Sequential([
@@ -236,7 +259,7 @@ bidirectional_lstm = keras.Sequential([
 
 bidirectional_lstm.build(input_shape=(None, max_length))
 print("\nBidirectional LSTM:")
-print(f"  Parameters: {bidirectional_lstm.count_params():,}")
+print(f"  Parameters: {bidirectional_lstm.layers[1].count_params():,}")
 print("  (2x parameters: forward + backward)")
 
 # LSTM with dropout
@@ -275,8 +298,8 @@ gru_model = keras.Sequential([
 ], name='GRU')
 
 gru_model.build(input_shape=(None, max_length))
-print(f"GRU Parameters: {gru_model.count_params():,}")
-print(f"LSTM Parameters: {lstm_model.count_params():,}")
+print(f"GRU Parameters: {gru_model.layers[1].count_params():,}")
+print(f"LSTM Parameters: {lstm_model.layers[1].count_params():,}")
 print(f"\nGRU has ~75% of LSTM parameters (3 gates vs 4)")
 
 # Train GRU for comparison

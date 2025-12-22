@@ -45,8 +45,8 @@ print(f"Test samples: {x_test.shape[0]}")
 # Build a simple model
 print("\n[Step 2] Building neural network...")
 model = keras.Sequential([
-    layers.Dense(128, activation='relu', input_shape=(784,), name='hidden_1'),
-    layers.Dense(64, activation='relu', name='hidden_2'),
+    layers.Dense(64, activation='relu', input_shape=(784,), name='hidden_1'),
+    layers.Dense(32, activation='relu', name='hidden_2'),
     layers.Dense(10, activation='softmax', name='output')
 ], name='mnist_classifier')
 
@@ -151,7 +151,7 @@ tensorboard_dropout = keras.callbacks.TensorBoard(
 
 history_dropout = model_dropout.fit(
     x_train, y_train,
-    epochs=10,
+    epochs=15,
     batch_size=128,
     validation_split=0.2,
     callbacks=[tensorboard_dropout],
@@ -167,9 +167,9 @@ log_dir_large = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S") 
 os.makedirs(log_dir_large, exist_ok=True)
 
 model_large = keras.Sequential([
-    layers.Dense(256, activation='relu', input_shape=(784,)),
-    layers.Dense(128, activation='relu'),
+    layers.Dense(128, activation='relu', input_shape=(784,)),
     layers.Dense(64, activation='relu'),
+    layers.Dense(32, activation='relu'),
     layers.Dense(10, activation='softmax')
 ], name='mnist_classifier_large')
 
@@ -187,7 +187,7 @@ tensorboard_large = keras.callbacks.TensorBoard(
 
 history_large = model_large.fit(
     x_train, y_train,
-    epochs=10,
+    epochs=15,
     batch_size=128,
     validation_split=0.2,
     callbacks=[tensorboard_large],
